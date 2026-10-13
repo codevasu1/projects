@@ -1,0 +1,9 @@
+fastapi[standard]
+uvicorn[standard]
+python-multipart
+pydantic-settings
+pypdf
+chromadb
+google-genai
+pytest
+httpx

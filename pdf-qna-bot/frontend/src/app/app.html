@@ -1,0 +1,51 @@
+<div class="layout">
+  <aside>
+    <h2>Documents</h2>
+    <label class="upload">
+      {{ uploading() ? 'Processing…' : 'Upload PDF' }}
+      <input type="file" accept="application/pdf" (change)="onFile($event)" [disabled]="uploading()" hidden />
+    </label>
+    @if (uploadError()) {
+      <p class="err">{{ uploadError() }}</p>
+    }
+    <p class="hint">Select documents to restrict answers (none = all).</p>
+    <ul>
+      @for (d of docs(); track d.id) {
+        <li>
+          <label>
+            <input type="checkbox" [checked]="selected().has(d.id)" (change)="toggle(d.id)" />
+            <span class="name" [title]="d.filename">{{ d.filename }}</span>
+          </label>
+          <small>{{ d.pages }} pages</small>
+          <button class="del" (click)="remove(d.id)" aria-label="Delete">✕</button>
+        </li>
+      } @empty {
+        <li class="hint">No documents yet.</li>
+      }
+    </ul>
+  </aside>
+
+  <main>
+    <div class="messages">
+      @for (m of messages(); track $index) {
+        <div class="msg" [class.user]="m.role === 'user'" [class.error]="m.error">
+          <div class="bubble">{{ m.content || (busy() ? '…' : '') }}</div>
+          @if (m.sources?.length) {
+            <details>
+              <summary>Sources ({{ m.sources!.length }})</summary>
+              @for (s of m.sources; track $index) {
+                <div class="src"><b>{{ s.filename }} — p.{{ s.page }}</b><br />{{ s.snippet }}…</div>
+              }
+            </details>
+          }
+        </div>
+      } @empty {
+        <p class="hint center">Upload a PDF and ask a question about it.</p>
+      }
+    </div>
+    <form (ngSubmit)="send()">
+      <input name="q" [(ngModel)]="question" placeholder="Ask about your documents…" autocomplete="off" />
+      <button type="submit" [disabled]="busy() || !question.trim()">Send</button>
+    </form>
+  </main>
+</div>
